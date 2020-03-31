@@ -1,6 +1,11 @@
 package main
 
-import "github.com/kataras/iris"
+import (
+	"context"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/mvc"
+	"seckill/backend/web/controllers"
+)
 
 func main() {
 	app := iris.New()
@@ -15,6 +20,15 @@ func main() {
 		c.ViewLayout("")
 		c.View("shared/error.html")
 	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	productParty := app.Party("/product")
+	product := mvc.New(productParty)
+	product.Register(ctx)
+	product.Handle(new(controllers.ProductController))
+
 	app.Run(
 		iris.Addr("localhost:8080"),
 		iris.WithoutServerError(iris.ErrServerClosed),
